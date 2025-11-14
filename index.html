@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Famous Temples in Telangana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .location-status {
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-section {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+
+        .filter-section input, .filter-section select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .temples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .temple-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .temple-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+        }
+
+        .temple-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+        }
+
+        .temple-content {
+            padding: 20px;
+        }
+
+        .temple-name {
+            font-size: 1.5em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .temple-location {
+            color: #666;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .distance-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .temple-description {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .hotels-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .hotels-title {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .hotel-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .hotel-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .hotel-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .price {
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .loading {
+            text-align: center;
+            color: white;
+            font-size: 1.2em;
+            padding: 40px;
+        }
+
+        .btn-directions {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-directions:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .temples-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛕 Famous Temples in Telangana</h1>
+            <p>Discover sacred destinations with distances and nearby accommodations</p>
+        </header>
+
+        <div class="location-status" id="locationStatus">
+            📍 Detecting your location...
+        </div>
+
+        <div class="filter-section">
+            <input type="text" id="searchInput" placeholder="🔍 Search temples by name or location...">
+            <select id="sortSelect">
+                <option value="distance">Sort by Distance</option>
+                <option value="name">Sort by Name</option>
+            </select>
+        </div>
+
+        <div class="temples-grid" id="templesGrid">
+            <div class="loading">Loading temples...</div>
+        </div>
+    </div>
+
+    <script>
+        const temples = [
+            {
+                name: "Yadagirigutta Temple",
+                location: "Yadagirigutta, Yadadri Bhuvanagiri",
+                coordinates: { lat: 17.6015, lng: 78.8948 },
+                description: "One of the most famous temples dedicated to Lord Narasimha. The temple sits atop a hill and attracts millions of devotees annually.",
+                deity: "Lord Narasimha",
+                hotels: [
+                    { name: "Haritha Hotel", distance: "0.5 km", price: "₹2,500 - ₹4,000", amenities: "AC rooms, Restaurant, Parking" },
+                    { name: "Sri Lakshmi Narasimha Lodge", distance: "1 km", price: "₹1,000 - ₹2,000", amenities: "Basic rooms, Clean facilities" },
+                    { name: "Sai Residency", distance: "1.5 km", price: "₹1,500 - ₹3,000", amenities: "AC/Non-AC, WiFi, Restaurant" }
+                ]
+            },
+            {
+                name: "Bhadrachalam Temple",
+                location: "Bhadrachalam, Bhadradri Kothagudem",
+                coordinates: { lat: 17.6688, lng: 80.8936 },
+                description: "A renowned temple dedicated to Lord Rama, located on the banks of the Godavari River. Famous for Sri Rama Navami celebrations.",
+                deity: "Lord Rama",
+                hotels: [
+                    { name: "Haritha Hotel Bhadrachalam", distance: "0.3 km", price: "₹2,000 - ₹3,500", amenities: "River view, AC rooms, Restaurant" },
+                    { name: "Vaidehi Guest House", distance: "0.8 km", price: "₹1,200 - ₹2,500", amenities: "Clean rooms, Parking" },
+                    { name: "Sri Rama Lodge", distance: "1 km", price: "₹800 - ₹1,500", amenities: "Budget friendly, Basic amenities" }
+                ]
+            },
+            {
+                name: "Thousand Pillar Temple",
+                location: "Hanamkonda, Warangal",
+                coordinates: { lat: 18.0146, lng: 79.5708 },
+                description: "An ancient temple from the Kakatiya dynasty featuring intricate stone carvings and a unique star-shaped design.",
+                deity: "Lord Shiva, Vishnu, Surya",
+                hotels: [
+                    { name: "Haritha Kakatiya Hotel", distance: "3 km", price: "₹2,500 - ₹4,500", amenities: "AC rooms, Pool, Restaurant" },
+                    { name: "Hotel Ashoka", distance: "2 km", price: "₹1,800 - ₹3,000", amenities: "Comfortable rooms, WiFi" },
+                    { name: "Suprabha Hotel", distance: "2.5 km", price: "₹1,500 - ₹2,500", amenities: "AC/Non-AC, Restaurant" }
+                ]
+            },
+            {
+                name: "Ramappa Temple",
+                location: "Palampet, Mulugu",
+                coordinates: { lat: 18.1653, lng: 79.8037 },
+                description: "UNESCO World Heritage Site, known for its floating bricks architecture and stunning Kakatiya-era sculptures.",
+                deity: "Lord Shiva",
+                hotels: [
+                    { name: "Haritha Hotel Laknavaram", distance: "15 km", price: "₹2,000 - ₹3,500", amenities: "Lake view, AC rooms, Restaurant" },
+                    { name: "Eco-Tourism Cottages", distance: "5 km", price: "₹1,500 - ₹2,500", amenities: "Nature stay, Basic facilities" },
+                    { name: "Palampet Guest House", distance: "2 km", price: "₹1,000 - ₹1,800", amenities: "Budget stay, Clean rooms" }
+                ]
+            },
+            {
+                name: "Basara Saraswathi Temple",
+                location: "Basara, Nirmal",
+                coordinates: { lat: 18.8789, lng: 77.9903 },
+                description: "One of the two famous temples dedicated to Goddess Saraswathi in India. Popular for Akshara Abhyasam ceremony.",
+                deity: "Goddess Saraswathi",
+                hotels: [
+                    { name: "Haritha Hotel Basara", distance: "0.5 km", price: "₹2,000 - ₹3,000", amenities: "AC rooms, Restaurant, Parking" },
+                    { name: "Sri Saraswathi Nilayam", distance: "1 km", price: "₹1,200 - ₹2,000", amenities: "Family rooms, Clean" },
+                    { name: "Basara Lodge", distance: "0.8 km", price: "₹800 - ₹1,500", amenities: "Budget friendly, Basic amenities" }
+                ]
+            },
+            {
+                name: "Keesaragutta Temple",
+                location: "Keesaragutta, Medchal-Malkajgiri",
+                coordinates: { lat: 17.5557, lng: 78.6989 },
+                description: "Ancient temple dedicated to Lord Shiva, located on a hilltop. Known for its peaceful environment and scenic beauty.",
+                deity: "Lord Shiva",
+                hotels: [
+                    { name: "Keesara Residency", distance: "2 km", price: "₹1,500 - ₹2,500", amenities: "AC rooms, Restaurant" },
+                    { name: "Shiva Lodge", distance: "1.5 km", price: "₹1,000 - ₹1,800", amenities: "Clean rooms, Parking" },
+                    { name: "Hill View Guest House", distance: "3 km", price: "₹1,200 - ₹2,000", amenities: "Scenic view, Basic facilities" }
+                ]
+            },
+            {
+                name: "Chilkur Balaji Temple",
+                location: "Chilkur, Hyderabad",
+                coordinates: { lat: 17.3667, lng: 78.3500 },
+                description: "Known as 'Visa Balaji Temple', this ancient temple is famous for devotees seeking blessings for visa approvals.",
+                deity: "Lord Balaji",
+                hotels: [
+                    { name: "Osman Sagar Resort", distance: "5 km", price: "₹3,000 - ₹5,000", amenities: "Lake view, AC rooms, Restaurant" },
+                    { name: "Green Park Hotel", distance: "8 km", price: "₹2,000 - ₹3,500", amenities: "Modern amenities, WiFi" },
+                    { name: "Balaji Lodge", distance: "3 km", price: "₹1,000 - ₹1,800", amenities: "Budget stay, Basic facilities" }
+                ]
+            },
+            {
+                name: "Vemulawada Temple",
+                location: "Vemulawada, Rajanna Sircilla",
+                coordinates: { lat: 18.3204, lng: 78.8646 },
+                description: "A major pilgrimage center dedicated to Lord Shiva (Raja Rajeshwara Swamy), known for fulfilling devotees' wishes.",
+                deity: "Lord Shiva",
+                hotels: [
+                    { name: "Haritha Hotel Vemulawada", distance: "1 km", price: "₹2,000 - ₹3,500", amenities: "AC rooms, Restaurant, Parking" },
+                    { name: "Sri Raja Rajeshwara Lodge", distance: "0.5 km", price: "₹1,000 - ₹2,000", amenities: "Clean rooms, Basic facilities" },
+                    { name: "Sai Krishna Residency", distance: "1.5 km", price: "₹1,500 - ₹2,500", amenities: "AC/Non-AC, Restaurant" }
+                ]
+            }
+        ];
+
+        let userLocation = null;
+        let filteredTemples = [...temples];
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        document.getElementById('locationStatus').innerHTML = 
+                            `📍 Your location detected. Showing distances from your current location.`;
+                        calculateDistances();
+                        renderTemples();
+                    },
+                    (error) => {
+                        userLocation = { lat: 17.4474, lng: 78.3561 };
+                        document.getElementById('locationStatus').innerHTML = 
+                            `📍 Using default location: Uppal Kalan, Telangana`;
+                        calculateDistances();
+                        renderTemples();
+                    }
+                );
+            } else {
+                userLocation = { lat: 17.4474, lng: 78.3561 };
+                document.getElementById('locationStatus').innerHTML = 
+                    `📍 Using default location: Uppal Kalan, Telangana`;
+                calculateDistances();
+                renderTemples();
+            }
+        }
+
+        function calculateDistances() {
+            temples.forEach(temple => {
+                temple.distance = calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    temple.coordinates.lat,
+                    temple.coordinates.lng
+                ).toFixed(1);
+            });
+        }
+
+        function renderTemples() {
+            const grid = document.getElementById('templesGrid');
+            grid.innerHTML = '';
+
+            filteredTemples.forEach(temple => {
+                const card = document.createElement('div');
+                card.className = 'temple-card';
+                
+                const hotelsHTML = temple.hotels.map(hotel => `
+                    <div class="hotel-item">
+                        <div class="hotel-name">${hotel.name}</div>
+                        <div class="hotel-details">
+                            📍 ${hotel.distance} | <span class="price">${hotel.price}</span>
+                            <br>✨ ${hotel.amenities}
+                        </div>
+                    </div>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="temple-image">🛕</div>
+                    <div class="temple-content">
+                        <div class="temple-name">${temple.name}</div>
+                        <div class="temple-location">📍 ${temple.location}</div>
+                        <div class="distance-badge">📏 ${temple.distance} km away</div>
+                        <div class="temple-description">${temple.description}</div>
+                        <div><strong>Deity:</strong> ${temple.deity}</div>
+                        <div class="hotels-section">
+                            <div class="hotels-title">🏨 Nearby Hotels & Accommodations</div>
+                            ${hotelsHTML}
+                        </div>
+                        <button class="btn-directions" onclick="getDirections(${temple.coordinates.lat}, ${temple.coordinates.lng})">
+                            🗺️ Get Directions
+                        </button>
+                    </div>
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function getDirections(lat, lng) {
+            const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+            window.open(url, '_blank');
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            filteredTemples = temples.filter(temple => 
+                temple.name.toLowerCase().includes(query) ||
+                temple.location.toLowerCase().includes(query) ||
+                temple.deity.toLowerCase().includes(query)
+            );
+            sortTemples();
+            renderTemples();
+        });
+
+        document.getElementById('sortSelect').addEventListener('change', sortTemples);
+
+        function sortTemples() {
+            const sortBy = document.getElementById('sortSelect').value;
+            if (sortBy === 'distance') {
+                filteredTemples.sort((a, b) => parseFloat(a.distance) - parseFloat(b.distance));
+            } else if (sortBy === 'name') {
+                filteredTemples.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            renderTemples();
+        }
+
+        getUserLocation();
+    </script>
+</body>
+</html>
